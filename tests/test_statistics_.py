@@ -1,0 +1,99 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pickle
+import pytest
+
+from main import statistics_
+from testing import helpers
+
+GET_PATH = lambda path: str((Path(__file__) / '../..' / path).resolve().absolute())
+stats = statistics_.Stats()
+# df = pd.read_excel(GET_PATH('info_tests/data_ceated.xlsx'))
+with open(GET_PATH('testing/doc/data_ceated.pickle'), 'rb') as f:
+    df = pickle.load(f)
+
+
+def test_binContinuousCovariate():
+    """
+    Checking that the returned element is a dictionary
+    """
+    CUTOFFS = np.array([1370.0, 1950.0, 2506.0, 3160.0, 4125.0, 5028.0, 5947.4, 8408.2, 28867.8])
+    FACTOR_LEVEL_STRINGS = np.array(['< 1370.0', '1370.0 - 1950.0', '1950.0 - 2506.0',
+                                     '2506.0 - 3160.0', '3160.0 - 4125.0', '4125.0 - 5028.0',
+                                     '5028.0 - 5947.400000000009', '5947.400000000009 - 8408.2000000',
+                                     '8408.200000000012 - 28867.800000', '>= 28867.800000000017'], dtype='<U32')
+    cov_vec = df['faultsDurationTime']
+    bin_result = stats.binContinuousCovariate(covVec=cov_vec)
+    assert isinstance(bin_result, dict)
+    assert bin_result.get('cutoffs') is not None
+    assert bin_result.get('factorLevelStrings') is not None
+    assert len(bin_result['cutoffs']) + 1 == len(bin_result['factorLevelStrings'])
+    np.testing.assert_almost_equal(CUTOFFS, bin_result['cutoffs'])
+    np.testing.assert_equal(FACTOR_LEVEL_STRINGS, bin_result['factorLevelStrings'])
+
+
+#  @pytest.mark.skip(reason='>Runtime')
+def test_calculateFactorLevelCut():
+    dff = pd.read_csv(GET_PATH('testing/doc/calculateFactorLevelCut.csv'))  # type: ignore
+    dff.dropna(inplace=True)
+    result = stats.calculateFactorLevelCut(
+        cov_vector=df.faultsDurationTime,
+        cutoffs=stats.binContinuousCovariate(df.faultsDurationTime)['cutoffs'],
+        max_value=df.faultsDurationTime.max().astype(int),
+        min_value=df.faultsDurationTime.min().astype(int),
+    )
+    assert isinstance(result, pd.Series)
+    result = pd.DataFrame(result).dropna().astype(str)  # type: ignore
+    helpers.preprocess_df_calculateFactorLevelCut(dff)
+    helpers.preprocess_df_calculateFactorLevelCut(result)
+    pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
+
+
+def test_AssignKeyColumns():
+    l = pd.Index(["name", "dateTime", "assetId"])
+    result = stats.AssignKeyColumns(
+        df=pd.DataFrame({"surname": range(1, 5), "time": range(1, 5), "id": range(1, 5)}),
+        name_col="surname", datetime_col="time", asset_id_col="id")
+    assert isinstance(result, pd.DataFrame)
+    assert result.columns.equals(l)
+
+
+def test_computePvalueInteractionWithAssetID():
+    """
+    Checking that the returned element is a instance of pd.DataFrame
+    """
+    dff = pd.read_csv(GET_PATH('testing/doc/computePvalueInteractionWithAssetID.csv'))
+    dff['faultActiveTime'] = pd.to_datetime(dff['faultActiveTime'])
+    dff['createdDate'] = pd.to_datetime(dff['createdDate'])
+    result = stats.computePvalueInteractionWithAssetID(data=df, faultCountsColName="numFaults", durationColName="faultsDurationTime")
+    assert isinstance(result, pd.DataFrame)
+    pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
+
+
+def test_collapseFactorData():
+    dff = pd.read_csv(GET_PATH('testing/doc/collapseFactorData.csv'))
+    result = stats.collapseFactorData(df, assetIdColName='assetID', faultCountsColName='numFaults', covColName='faultsDurationTime')
+    assert isinstance(result, pd.DataFrame)
+    pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
+
+
+@pytest.mark.skip(reason='NotImplemented')
+def test_removeOutliersQuantile():
+    ...
+
+
+@pytest.mark.skip(reason='NotImplemented')
+def test_significanceTestPoisModel():
+    ...
+
+
+@pytest.mark.skip(reason='NotImplemented')
+def fitRegressionModelFast():
+    ...
+
+
+@pytest.mark.skip(reason='NotImplemented')
+def calculatePvalueAppended():
+    ...

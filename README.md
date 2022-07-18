@@ -1,1 +1,4 @@
-# analytics_python_app
+Run tests by using the command
+```
+pytest tests
+```
