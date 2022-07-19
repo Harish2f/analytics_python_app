@@ -11,9 +11,7 @@ from testing import helpers
 
 GET_PATH = lambda path: str((Path(__file__) / '../..' / path).resolve().absolute())
 stats = statistics_.Stats()
-# df = pd.read_excel(GET_PATH('info_tests/data_ceated.xlsx'))
-with open(GET_PATH('testing/doc/data_ceated.pickle'), 'rb') as f:
-    df = pickle.load(f)
+df = pd.read_pickle(GET_PATH('testing/doc/data_ceated.pickle'))
 
 
 def test_binContinuousCovariate():
@@ -116,10 +114,10 @@ def test_calculateRatioSE():
 # @pytest.mark.skip(reason='NEEDS FIXING')
 def test_robustCut():
     dff = pd.read_csv(GET_PATH('testing/doc/robustCut.csv'))
-    result = stats.robustCut(vec=df.faultsDurationTime,  numBins=10).astype(str)
-    helpers.preprocess_df_split_interval(dff)
-    helpers.preprocess_df_split_interval(result)
-    pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
+    result = stats.robustCut(vec=df.faultsDurationTime, numBins=10).astype(str)
+    helpers.preprocess_df_split_interval_and_factorize(dff)
+    helpers.preprocess_df_split_interval_and_factorize(result)
+    pd.testing.assert_frame_equal(dff, result, atol=1)   # type: ignore
 
 
 # @pytest.mark.skip(reason='> RUNTIME')
@@ -134,6 +132,7 @@ def test_removeOutliersQuantile():
 @pytest.mark.skip(reason='NOT IMPLEMENTED')
 def test_removeOutliersGLMFast():
     ...
+
 
 @pytest.mark.skip(reason='NOT IMPLEMENTED')
 def test_compute_pValues():

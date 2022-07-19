@@ -300,20 +300,20 @@ class Stats():
         if np.sum(vec > upperCutoff) > 0 and np.sum(vec < lowerCutoff) > 0:
             lowerCutoff = vec.loc[vec >= lowerCutoff].min()
             upperCutoff = vec.loc[vec <= upperCutoff].max()
-            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff + 1, numBins - 1), vec.max()]
+            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff, numBins - 1), vec.max()]
         if np.sum(vec > upperCutoff) > 0 and np.sum(vec < lowerCutoff) == 0:
             lowerCutoff = vec.min()
             upperCutoff = vec.loc[vec <= upperCutoff].max()
-            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff + 1, numBins), vec.max()]
+            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff, numBins), vec.max()]
         if np.sum(vec > upperCutoff) == 0 and np.sum(vec < lowerCutoff) > 0:
             lowerCutoff = vec.loc[vec >= lowerCutoff].min()
             upperCutoff = vec.max()
-            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff + 1, numBins)]
+            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff, numBins)]
         if np.sum(vec > upperCutoff) == 0 and np.sum(vec < lowerCutoff) == 0:
             lowerCutoff = vec.min()
             upperCutoff = vec.max()
-            brks = np.linspace(lowerCutoff, upperCutoff + 1, numBins + 1)
-        result = pd.cut(vec, bins=brks, include_lowest=True)
+            brks = np.linspace(lowerCutoff, upperCutoff, numBins + 1)
+        result = pd.cut(vec, bins=brks, include_lowest=True, precision=3)
         return result.to_frame()
 
     @staticmethod
