@@ -35,7 +35,7 @@ def test_binContinuousCovariate():
     np.testing.assert_equal(FACTOR_LEVEL_STRINGS, bin_result['factorLevelStrings'])
 
 
-# @pytest.mark.skip(reason='>RUNTIME')
+# @pytest.mark.skip(reason='> RUNTIME')
 def test_calculateFactorLevelCut():
     dff = pd.read_csv(GET_PATH('testing/doc/calculateFactorLevelCut.csv'))
     dff.dropna(inplace=True)
@@ -47,8 +47,8 @@ def test_calculateFactorLevelCut():
     )
     assert isinstance(result, pd.Series)
     result = pd.DataFrame(result).dropna().astype(str)
-    helpers.preprocess_df_calculateFactorLevelCut(dff)
-    helpers.preprocess_df_calculateFactorLevelCut(result)
+    helpers.preprocess_df_split_interval(dff)
+    helpers.preprocess_df_split_interval(result)
     pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
@@ -60,7 +60,7 @@ def test_AssignKeyColumns():
     assert isinstance(result, pd.DataFrame)
     assert result.columns.equals(l)
 
-
+# @pytest.mark.skip(reason='> RUNTIME')
 def test_computePvalueInteractionWithAssetID():
     """
     Checking that the returned element is a instance of pd.DataFrame
@@ -73,7 +73,7 @@ def test_computePvalueInteractionWithAssetID():
     pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
-@pytest.mark.skip(reason='NEEDS FIXING')
+# @pytest.mark.skip(reason='NEEDS FIXING')
 def test_collapseFactorData():
     dff = pd.read_csv(GET_PATH('testing/doc/collapseFactorData.csv'))
     result = stats.collapseFactorData(df, assetIdColName='assetID', faultCountsColName='numFaults', covColName='faultsDurationTime')
@@ -116,12 +116,16 @@ def test_calculateRatioSE():
     ...
 
 
-@pytest.mark.skip(reason='NOT IMPLEMENTED')
+# @pytest.mark.skip(reason='NEEDS FIXING')
 def test_robustCut():
-    ...
+    dff = pd.read_csv(GET_PATH('testing/doc/robustCut.csv'))
+    result = stats.robustCut(vec=df.faultsDurationTime,  numBins=10).astype(str)
+    helpers.preprocess_df_split_interval(dff)
+    helpers.preprocess_df_split_interval(result)
+    pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
-@pytest.mark.skip(reason='> RUNTIME')
+# @pytest.mark.skip(reason='> RUNTIME')
 def test_removeOutliersQuantile():
     dff = pd.read_csv(GET_PATH('testing/doc/removeOutliersQuantile.csv'))['outliers'].values
     dff -= 1  # type: ignore ; Indexing in R starts from 1

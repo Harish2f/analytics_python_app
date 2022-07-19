@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
 
 
-def preprocess_df_calculateFactorLevelCut(df: pd.DataFrame) -> None:
+def preprocess_df_split_interval(df: pd.DataFrame) -> None:
     assert df.columns == ['faultsDurationTime']
     df['0'] = df.faultsDurationTime.apply(lambda x: str(x)[0])
     df['1'] = df.faultsDurationTime.apply(lambda x: str(x)[1:-1].split(',')[0])

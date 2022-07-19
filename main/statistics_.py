@@ -15,7 +15,7 @@ class Stats():
         return df[1, i].sum() / df[0, i].sum()
 
     @staticmethod
-    def binContinuousCovariate(covVec: np.ndarray | pd.Series, numBinsByUser: int = 10) -> dict[str, np.ndarray]:
+    def binContinuousCovariate(covVec: pd.Series, numBinsByUser: int = 10) -> dict[str, np.ndarray]:
         covVec = covVec[~np.isnan(covVec)]
         q = np.linspace(0, 1, numBinsByUser, endpoint=False)[1:]
         cutoffs = np.quantile(a=covVec, q=q)
@@ -43,7 +43,7 @@ class Stats():
     def computePvalueForVar(self, data: pd.DataFrame, covColName: str, durationColName: str, isContinuous: bool = False,
                             assetIdColName: str = 'assetId', faultCountsColNAme: str = 'num_faults', isCompleteData: bool = False,
                             testingSide: str = 'right', modelType: str = 'poisson', removeOutliersOption: int = 0,
-                            removeOutliersThreshold: float = 0.995) -> pd.DataFrame:
+                            removeOutliersThreshold: float = 0.995):
 
         if modelType != 'poisson':
             raise ValueError(f'Currently, the function does not support this family: {modelType}')
@@ -62,7 +62,7 @@ class Stats():
             data = data[[covColName, assetIdColName, faultCountsColNAme, durationColName]]
             if not isContinuous:
                 data[covColName] = data[covColName].astype('category')
-                factorLevels = data[covColName].cat.categories  # type: ignore
+                # factorLevels = data[covColName].cat.categories  # type: ignore
                 if data.shape[0] > data[assetIdColName].unique().shape[0]:
                     raise ValueError(f'Duplicated rows for factor level and assetId combination')
                 else:
@@ -309,37 +309,34 @@ class Stats():
 
     @staticmethod
     def robustCut(vec, numBins=10):
-        indNoNA = np.where(np.isnan(vec) == False)
-        length = len(vec)
-        vec = vec[~indNoNA]
-        meanRobust = mean(vec)
+        vec = vec.astype(int)
+        indNoNA = vec.index[~np.isnan(vec)]
+        vec = vec.loc[~np.isnan(vec)]
+        length = vec.size
+
+        meanRobust = np.median(vec)
         sdRobust = np.median(abs(vec - np.median(vec))) / 0.675
         upperCutoff = meanRobust + sdRobust * 3
         lowerCutoff = meanRobust - sdRobust * 3
+        brks = None
         if np.sum(vec > upperCutoff) > 0 and np.sum(vec < lowerCutoff) > 0:
-            lowerCutoff = np.argmin(vec[vec >= lowerCutoff])
-            upperCutoff = np.argmax(vec[vec <= upperCutoff])
-            brks = np.r_[np.argmin(vec), np.linspace(
-                start=lowerCutoff, stop=upperCutoff, num=(numBins - 1)), np.argmax(vec)]
-        if np.sum(vec > upperCutoff) > 0 & np.sum(vec < lowerCutoff) == 0:
-            lowerCutoff = np.argmin(vec)
-            upperCutoff = np.argmax(vec[vec <= upperCutoff])
-            brks = np.r_[np.argmin(vec), np.linspace(
-                start=lowerCutoff, stop=upperCutoff, num=numBins), np.argmax(vec)]
+            lowerCutoff = vec.loc[vec >= lowerCutoff].min()
+            upperCutoff = vec.loc[vec <= upperCutoff].max()
+            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff + 1, numBins - 1), vec.max()]
+        if np.sum(vec > upperCutoff) > 0 and np.sum(vec < lowerCutoff) == 0:
+            lowerCutoff = vec.min()
+            upperCutoff = vec.loc[vec <= upperCutoff].max()
+            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff + 1, numBins), vec.max()]
         if np.sum(vec > upperCutoff) == 0 and np.sum(vec < lowerCutoff) > 0:
-            lowerCutoff = np.argmin(vec[vec >= lowerCutoff])
-            upperCutoff = np.argmax(vec)
-            brks = np.r_[np.argmin(vec), np.linspace(
-                lowerCutoff, upperCutoff, num=numBins)]
-        if np.sum(vec > upperCutoff) == 0 & np.sum(vec < lowerCutoff) == 0:
-            lowerCutoff = np.argmin(vec)
-            upperCutoff = np.argmax(vec)
-            brks = np.linspace(lowerCutoff, upperCutoff, num=(numBins + 1))
-        # returns categorical by default
+            lowerCutoff = vec.loc[vec >= lowerCutoff].min()
+            upperCutoff = vec.max()
+            brks = np.r_[vec.min(), np.linspace(lowerCutoff, upperCutoff + 1, numBins)]
+        if np.sum(vec > upperCutoff) == 0 and np.sum(vec < lowerCutoff) == 0:
+            lowerCutoff = vec.min()
+            upperCutoff = vec.max()
+            brks = np.linspace(lowerCutoff, upperCutoff + 1, numBins + 1)
         result = pd.cut(vec, bins=brks, include_lowest=True)
-        ret = np.repeat(np.nan, length)
-        ret[indNoNA] = result
-        return ret
+        return result.to_frame()
 
     @staticmethod
     def collapseFactorData(data: pd.DataFrame, assetIdColName: str, faultCountsColName: str, covColName: str) -> pd.DataFrame:
@@ -370,3 +367,6 @@ class Stats():
     # line 503
     # If there is no fault data for a fault code and a level of the covariate factor of interest, then add
     # a row with zero fault counts and with locomotive ID equal to "LOCOMOTIVE_0000".
+    @staticmethod
+    def calculatePValueAppended(*args, **kwargs):
+        ...
