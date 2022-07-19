@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pathlib import Path
 
 import numpy as np
@@ -34,9 +35,9 @@ def test_binContinuousCovariate():
     np.testing.assert_equal(FACTOR_LEVEL_STRINGS, bin_result['factorLevelStrings'])
 
 
-#  @pytest.mark.skip(reason='>Runtime')
+@pytest.mark.skip(reason='>RUNTIME')
 def test_calculateFactorLevelCut():
-    dff = pd.read_csv(GET_PATH('testing/doc/calculateFactorLevelCut.csv'))  # type: ignore
+    dff = pd.read_csv(GET_PATH('testing/doc/calculateFactorLevelCut.csv'))
     dff.dropna(inplace=True)
     result = stats.calculateFactorLevelCut(
         cov_vector=df.faultsDurationTime,
@@ -45,17 +46,17 @@ def test_calculateFactorLevelCut():
         min_value=df.faultsDurationTime.min().astype(int),
     )
     assert isinstance(result, pd.Series)
-    result = pd.DataFrame(result).dropna().astype(str)  # type: ignore
+    result = pd.DataFrame(result).dropna().astype(str)
     helpers.preprocess_df_calculateFactorLevelCut(dff)
     helpers.preprocess_df_calculateFactorLevelCut(result)
     pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
 def test_AssignKeyColumns():
-    l = pd.Index(["name", "dateTime", "assetId"])
+    l = pd.Index(['name', 'dateTime', 'assetId'])
     result = stats.AssignKeyColumns(
-        df=pd.DataFrame({"surname": range(1, 5), "time": range(1, 5), "id": range(1, 5)}),
-        name_col="surname", datetime_col="time", asset_id_col="id")
+        df=pd.DataFrame({'surname': range(1, 5), 'time': range(1, 5), 'id': range(1, 5)}),
+        name_col='surname', datetime_col='time', asset_id_col='id')
     assert isinstance(result, pd.DataFrame)
     assert result.columns.equals(l)
 
@@ -67,11 +68,12 @@ def test_computePvalueInteractionWithAssetID():
     dff = pd.read_csv(GET_PATH('testing/doc/computePvalueInteractionWithAssetID.csv'))
     dff['faultActiveTime'] = pd.to_datetime(dff['faultActiveTime'])
     dff['createdDate'] = pd.to_datetime(dff['createdDate'])
-    result = stats.computePvalueInteractionWithAssetID(data=df, faultCountsColName="numFaults", durationColName="faultsDurationTime")
+    result = stats.computePvalueInteractionWithAssetID(data=df, faultCountsColName='numFaults', durationColName='faultsDurationTime')
     assert isinstance(result, pd.DataFrame)
     pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
+@pytest.mark.skip(reason='NEEDS FIXING')
 def test_collapseFactorData():
     dff = pd.read_csv(GET_PATH('testing/doc/collapseFactorData.csv'))
     result = stats.collapseFactorData(df, assetIdColName='assetID', faultCountsColName='numFaults', covColName='faultsDurationTime')
@@ -79,9 +81,13 @@ def test_collapseFactorData():
     pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
-@pytest.mark.skip(reason='NotImplemented')
+@pytest.mark.skip(reason='>RUNTIME')
 def test_removeOutliersQuantile():
-    ...
+    dff = pd.read_csv(GET_PATH('testing/doc/removeOutliersQuantile.csv'))['outliers'].values
+    dff -= 1  # type: ignore ; Indexing in R starts from 1
+    result = stats.removeOutliersQuantile(df=df, covColName='faultsDurationTime', responseColName='numFaults', cutoff=0.995)
+    assert isinstance(result, np.ndarray)
+    np.testing.assert_array_equal(dff, result)  # type: ignore
 
 
 @pytest.mark.skip(reason='NotImplemented')

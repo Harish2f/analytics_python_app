@@ -1,0 +1,23 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 18c2496e4ca0da8d25f0561bd51c29befea02b28
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-ast
+    -   id: check-yaml
+    -   id: check-builtin-literals
+    -   id: check-case-conflict
+    -   id: check-docstring-first
+    -   id: check-merge-conflict
+    -   id: debug-statements
+    -   id: detect-private-key
+    -   id: double-quote-string-fixer
+    -   id: end-of-file-fixer
+    -   id: fix-byte-order-marker
+    -   id: fix-encoding-pragma
+    -   id: mixed-line-ending
+    -   id: name-tests-test
+        args: [--pytest-test-first]
+    -   id: no-commit-to-branch
+    -   id: requirements-txt-fixer
+    -   id: trailing-whitespace
