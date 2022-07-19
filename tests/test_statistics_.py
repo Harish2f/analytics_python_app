@@ -35,7 +35,7 @@ def test_binContinuousCovariate():
     np.testing.assert_equal(FACTOR_LEVEL_STRINGS, bin_result['factorLevelStrings'])
 
 
-@pytest.mark.skip(reason='>RUNTIME')
+# @pytest.mark.skip(reason='>RUNTIME')
 def test_calculateFactorLevelCut():
     dff = pd.read_csv(GET_PATH('testing/doc/calculateFactorLevelCut.csv'))
     dff.dropna(inplace=True)
@@ -81,7 +81,47 @@ def test_collapseFactorData():
     pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
 
 
-@pytest.mark.skip(reason='>RUNTIME')
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_covToFactorData():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_completeCollapsedData():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_fitRegressionModelFast():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_calculatePvalueAppended():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_significanceTestPoisModel():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_computePValueForVar():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_calculateRatioSE():
+    ...
+
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_robustCut():
+    ...
+
+
+@pytest.mark.skip(reason='> RUNTIME')
 def test_removeOutliersQuantile():
     dff = pd.read_csv(GET_PATH('testing/doc/removeOutliersQuantile.csv'))['outliers'].values
     dff -= 1  # type: ignore ; Indexing in R starts from 1
@@ -90,16 +130,15 @@ def test_removeOutliersQuantile():
     np.testing.assert_array_equal(dff, result)  # type: ignore
 
 
-@pytest.mark.skip(reason='NotImplemented')
-def test_significanceTestPoisModel():
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_removeOutliersGLMFast():
+    ...
+
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_compute_pValues():
     ...
 
 
-@pytest.mark.skip(reason='NotImplemented')
-def fitRegressionModelFast():
-    ...
-
-
-@pytest.mark.skip(reason='NotImplemented')
-def calculatePvalueAppended():
+@pytest.mark.skip(reason='NOT IMPLEMENTED')
+def test_glm_mean_test():
     ...
