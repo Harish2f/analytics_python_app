@@ -17,9 +17,6 @@ with open(GET_PATH('testing/doc/data_ceated.pickle'), 'rb') as f:
 
 
 def test_binContinuousCovariate():
-    """
-    Checking that the returned element is a dictionary
-    """
     CUTOFFS = np.array([1370.0, 1950.0, 2506.0, 3160.0, 4125.0, 5028.0, 5947.4, 8408.2, 28867.8])
     FACTOR_LEVEL_STRINGS = np.array(['< 1370.0', '1370.0 - 1950.0', '1950.0 - 2506.0',
                                      '2506.0 - 3160.0', '3160.0 - 4125.0', '4125.0 - 5028.0',
@@ -131,7 +128,7 @@ def test_removeOutliersQuantile():
     dff -= 1  # type: ignore ; Indexing in R starts from 1
     result = stats.removeOutliersQuantile(df=df, covColName='faultsDurationTime', responseColName='numFaults', cutoff=0.995)
     assert isinstance(result, np.ndarray)
-    np.testing.assert_array_equal(dff, result)  # type: ignore
+    np.testing.assert_array_equal(dff, result)
 
 
 @pytest.mark.skip(reason='NOT IMPLEMENTED')
