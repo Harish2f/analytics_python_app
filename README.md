@@ -13,12 +13,12 @@ pytest tests
 | 5  | `collapseFactorData`                  | `df.groupby` is not yielding expected results        | Yes  |
 | 6  | `covToFactorData`                     | Depends: `collapseFactorData`                        | No   |
 | 7  | `completeCollapsedData`               | Depends: `collapseFactorData`                        | No   |
-| 8  | `fitRegressionModelFast`              | Error running the `r` script                           | No   |
+| 8  | `fitRegressionModelFast`              | Error running the `r` script                         | No   |
 | 9  | `calculatePvalueAppended`             | Depends: `fitRegressionModelFast`                    | No   |
 | 10 | `significanceTestPoisModel`           | Depends: `fitRegressionModelFast`                    | No   |
 | 11 | `computePvalueForVar`                 | Depends: `significanceTestPoisModel`                 | No   |
-| 12 | `calculateRatioSE`                    | `scipy.stats.bootsrap` not yielding expected results | No   |
-| 13 | `robustCut`                           | `pd.cut` yields different results from cut in `r`    | Yes  |
+| 12 | `calculateRatioSE`                    | `scipy.stats.bootstrap` not yielding expected results | No   |
+| 13 | `robustCut`                           | Yes                                                  | Yes  |
 | 14 | `removeOutliersQuantile`              | Yes                                                  | Yes  |
 | 15 | `removeOutliersGLMfast`               | Error running the `r` script                         | No   |
 | 16 | `compute_pValues_af`                  | Depends: `significanceTestPoisModel`                 | No   |
