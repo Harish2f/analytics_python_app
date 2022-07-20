@@ -56,8 +56,6 @@ def test_AssignKeyColumns():
     assert result.columns.equals(l)
 
 # @pytest.mark.skip(reason='> RUNTIME')
-
-
 def test_computePvalueInteractionWithAssetID():
     """
     Checking that the returned element is a instance of pd.DataFrame
@@ -75,8 +73,7 @@ def test_collapseFactorData():
     dff = pd.read_csv(GET_PATH('testing/doc/collapseFactorData.csv'))
     result = stats.collapseFactorData(df, assetIdColName='assetID', faultCountsColName='numFaults', covColName='faultsDurationTime')
     assert isinstance(result, pd.DataFrame)
-    dff['faultsDurationTime'] -= 1  # Indexing starts from 1, atol=1 would also work.
-    pd.testing.assert_frame_equal(dff, result)  # type: ignore
+    pd.testing.assert_frame_equal(dff, result, atol=1)  # type: ignore
 
 
 @pytest.mark.skip(reason='NOT IMPLEMENTED')
@@ -84,10 +81,15 @@ def test_covToFactorData():
     ...
 
 
-@pytest.mark.skip(reason='NOT IMPLEMENTED')
+# @pytest.mark.skip(reason='NOT IMPLEMENTED')
 def test_completeCollapsedData():
-    ...
-
+    dff = pd.read_csv(GET_PATH('testing/doc/collapseFactorData.csv'))
+    deps = stats.collapseFactorData(df, assetIdColName='assetID', faultCountsColName='numFaults', covColName='faultsDurationTime')
+    result = stats.completeCollapsedData(collapsedData=deps, factorOfInterestName='faultsDurationTime',
+                        factorLevels=pd.factorize(deps['faultsDurationTime'])[0],
+                        faultCountsColName='numFaults', assetIdColName='assetID')
+    assert isinstance(result, pd.DataFrame)
+    pd.testing.assert_frame_equal(dff, result, atol=1)  # type: ignore
 
 @pytest.mark.skip(reason='NOT IMPLEMENTED')
 def test_fitRegressionModelFast():
@@ -125,10 +127,9 @@ def test_robustCut():
 # @pytest.mark.skip(reason='> RUNTIME')
 def test_removeOutliersQuantile():
     dff = pd.read_csv(GET_PATH('testing/doc/removeOutliersQuantile.csv'))['outliers'].values
-    dff -= 1  # type: ignore ; Indexing in R starts from 1
     result = stats.removeOutliersQuantile(df=df, covColName='faultsDurationTime', responseColName='numFaults', cutoff=0.995)
     assert isinstance(result, np.ndarray)
-    np.testing.assert_array_equal(dff, result)
+    np.testing.assert_allclose(dff, result, atol=1) #type: ignore
 
 
 @pytest.mark.skip(reason='NOT IMPLEMENTED')

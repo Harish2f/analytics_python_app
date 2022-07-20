@@ -85,7 +85,9 @@ class Stats():
         collapsedData.columns = [covColName, assetIdColName, faultCountsColName]
         return collapsedData
 
-    def covToFactorData(self, data, assetIdColName, faultCountsColName, covColName, cutoffs, factorLevels):
+    def covToFactorData(self, data: pd.DataFrame, assetIdColName: str, faultCountsColName: str,
+                        covColName: str, cutoffs: np.ndarray, factorLevels: np.ndarray) -> pd.DataFrame:
+        raise NotImplementedError
         cutoffs = np.sort(cutoffs, axis=None)
         covVec = data[covColName]
         covFactor = np.apply_along_axis(lambda x: np.sum(x >= cutoffs) + 1, axis=0, arr=covVec)
@@ -93,11 +95,26 @@ class Stats():
         collapsedData = self.collapseFactorData(uncollapsedData, assetIdColName, faultCountsColName, covColName)
         return collapsedData
 
-    def completeCollapsedData(self, *args, **kwargs):
-        ...
+    def completeCollapsedData(self, collapsedData: pd.DataFrame, factorOfInterestName: str,
+                              factorLevels: np.ndarray, faultCountsColName: str, assetIdColName: str):
+        addedRows = None
+        levelForthisFault = collapsedData[factorOfInterestName].astype(int).unique()
+        factorLevels = factorLevels.astype(int)
+        missingLevels = factorLevels[~(np.isin(factorLevels, levelForthisFault))]
+        numpTmp = missingLevels.size
+        if numpTmp:
+            addedRows = pd.DataFrame()
+            addedRows['factor'] = missingLevels
+            addedRows['assetId'] = 'LOCOMOTIVE_0000'
+            addedRows['num_faults'] = numpTmp
+            addedRows.columns = [factorOfInterestName, assetIdColName, faultCountsColName]
+        returnedData = pd.concat((collapsedData, addedRows)) # type: ignore
+        returnedData = returnedData.sort_values(by=[factorOfInterestName, assetIdColName], ascending=(True, True))
+        return returnedData
 
     @staticmethod
     def fitRegressionModelFast(faultCounts: None, factorOfInterest, faultDuration, numLevels: int, factorLevels, family: str):
+        raise NotImplementedError
         if not faultDuration:
             dataSpeedGLM = pd.DataFrame({'faultCounts': faultCounts, 'factorOfInterest': factorOfInterest, 'faultDuration': faultDuration})
         else:
