@@ -72,7 +72,7 @@ class Stats():
 
     @staticmethod
     def collapseFactorData(data: pd.DataFrame, assetIdColName: str, faultCountsColName: str, covColName: str) -> pd.DataFrame:
-        cov_factor = pd.factorize(data[covColName])[0]
+        cov_factor, _ = pd.factorize(data[covColName], sort=True)
         asset_id = data[assetIdColName]
         num_faults = data[faultCountsColName]
         uncollapsedData = pd.DataFrame(dict(covFactor=cov_factor, assetID=asset_id, numFaults=num_faults))

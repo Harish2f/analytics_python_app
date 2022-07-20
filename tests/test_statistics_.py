@@ -36,7 +36,7 @@ def test_calculateFactorLevelCut():
     dff.dropna(inplace=True)
     result = stats.calculateFactorLevelCut(
         cov_vector=df.faultsDurationTime,
-        cutoffs=stats.binContinuousCovariate(df.faultsDurationTime)['cutoffs'],
+        cutoffs=stats.binContinuousCovariate(df.faultsDurationTime)['cutoffs'], # type: ignore
         max_value=df.faultsDurationTime.max().astype(int),
         min_value=df.faultsDurationTime.min().astype(int),
     )
@@ -56,6 +56,8 @@ def test_AssignKeyColumns():
     assert result.columns.equals(l)
 
 # @pytest.mark.skip(reason='> RUNTIME')
+
+
 def test_computePvalueInteractionWithAssetID():
     """
     Checking that the returned element is a instance of pd.DataFrame
@@ -73,7 +75,8 @@ def test_collapseFactorData():
     dff = pd.read_csv(GET_PATH('testing/doc/collapseFactorData.csv'))
     result = stats.collapseFactorData(df, assetIdColName='assetID', faultCountsColName='numFaults', covColName='faultsDurationTime')
     assert isinstance(result, pd.DataFrame)
-    pd.testing.assert_frame_equal(dff, result, rtol=1e-2)  # type: ignore
+    dff['faultsDurationTime'] -= 1  # Indexing starts from 1, atol=1 would also work.
+    pd.testing.assert_frame_equal(dff, result)  # type: ignore
 
 
 @pytest.mark.skip(reason='NOT IMPLEMENTED')
@@ -111,7 +114,6 @@ def test_calculateRatioSE():
     ...
 
 
-# @pytest.mark.skip(reason='NEEDS FIXING')
 def test_robustCut():
     dff = pd.read_csv(GET_PATH('testing/doc/robustCut.csv'))
     result = stats.robustCut(vec=df.faultsDurationTime, numBins=10).astype(str)
